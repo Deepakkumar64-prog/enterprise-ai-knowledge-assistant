@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 
+from app.api.v1.health import router as health_router
+from app.config.settings import settings
+
 app = FastAPI(
-    title="Enterprise AI Knowledge Assistant",
-    version="1.0.0"
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION
 )
 
-@app.get("/")
-def root():
-    return {"message": "Enterprise AI Knowledge Assistant API"}
-
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
+app.include_router(
+    health_router,
+    prefix="/api/v1",
+    tags=["Health"]
+)
