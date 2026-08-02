@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 
 from app.services.document_service import DocumentService
 from app.services.document_parser_service import DocumentParserService
+from app.services.chunking_service import ChunkingService
 
 router = APIRouter()
 
@@ -19,11 +20,13 @@ async def upload_document(file: UploadFile = File(...)):
 
     extracted_text = ""
 
-    if file.filename.endswith(".docx"):
+    if file.filename.lower().endswith(".docx"):
         extracted_text = DocumentParserService.parse_docx(file_path)
 
-    elif file.filename.endswith(".pdf"):
+    elif file.filename.lower().endswith(".pdf"):
         extracted_text = DocumentParserService.parse_pdf(file_path)
+
+    chunks = ChunkingService.chunk_text(extracted_text)
 
     return {
         "success": True,
@@ -31,5 +34,8 @@ async def upload_document(file: UploadFile = File(...)):
         "content_type": file.content_type,
         "saved_to": file_path,
         "file_size_bytes": file_size,
+        "text_length": len(extracted_text),
+        "chunk_count": len(chunks),
+        "sample_chunks": chunks[:3],
         "preview": extracted_text[:1000]
     }
