@@ -4,17 +4,16 @@ import requests
 class LLMService:
 
     @staticmethod
-    def generate_response(question: str):
+    def generate_response(prompt: str):
+
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
                 "model": "phi3",
-                "prompt": question,
+                "prompt": prompt,
                 "stream": False
             },
-            timeout=60
+            timeout=120
         )
 
-        result = response.json()
-
-        return result["response"]
+        return response.json()["response"]

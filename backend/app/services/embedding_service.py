@@ -1,8 +1,12 @@
+from sentence_transformers import SentenceTransformer
+
+
 class EmbeddingService:
 
-    @staticmethod
-    def generate_embedding(text: str):
-        return {
-            "status": "success",
-            "text_length": len(text)
-        }
+    model = SentenceTransformer(
+        "all-MiniLM-L6-v2"
+    )
+
+    @classmethod
+    def generate_embedding(cls, text: str):
+        return cls.model.encode(text).tolist()

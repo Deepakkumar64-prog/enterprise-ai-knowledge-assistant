@@ -3,6 +3,8 @@ from fastapi import APIRouter, UploadFile, File
 from app.services.document_service import DocumentService
 from app.services.document_parser_service import DocumentParserService
 from app.services.chunking_service import ChunkingService
+from app.services.embedding_service import EmbeddingService
+from app.services.vector_service import VectorService
 
 router = APIRouter()
 
@@ -21,12 +23,38 @@ async def upload_document(file: UploadFile = File(...)):
     extracted_text = ""
 
     if file.filename.lower().endswith(".docx"):
-        extracted_text = DocumentParserService.parse_docx(file_path)
+        extracted_text = DocumentParserService.parse_docx(
+            file_path
+        )
 
     elif file.filename.lower().endswith(".pdf"):
-        extracted_text = DocumentParserService.parse_pdf(file_path)
+        extracted_text = DocumentParserService.parse_pdf(
+            file_path
+        )
 
-    chunks = ChunkingService.chunk_text(extracted_text)
+    elif file.filename.lower().endswith(".txt"):
+        extracted_text = DocumentParserService.parse_txt(
+            file_path
+        )
+
+    chunks = ChunkingService.chunk_text(
+        extracted_text
+    )
+
+    for index, chunk in enumerate(chunks):
+
+        if not chunk.strip():
+            continue
+
+        embedding = EmbeddingService.generate_embedding(
+            chunk
+        )
+
+        VectorService.store_chunk(
+            chunk_id=f"{file.filename}_{index}",
+            chunk_text=chunk,
+            embedding=embedding
+        )
 
     return {
         "success": True,

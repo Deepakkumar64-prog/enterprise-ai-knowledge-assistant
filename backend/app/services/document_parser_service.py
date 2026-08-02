@@ -25,3 +25,13 @@ class DocumentParserService:
             text.append(page.extract_text() or "")
 
         return "\n".join(text)
+
+    @staticmethod
+    def parse_txt(file_path: str) -> str:
+        with open(
+            file_path,
+            "r",
+            encoding="utf-8",
+            errors="ignore"
+        ) as file:
+            return file.read()
